@@ -1,0 +1,20 @@
+[
+  { "name": "Republic Day", "date": "2026-01-26", "type": "national", "wishes": "Happy Republic Day! Jai Hind!" },
+  { "name": "Independence Day", "date": "2026-08-15", "type": "national", "wishes": "Happy Independence Day! Jai Hind!" },
+  { "name": "Gandhi Jayanti", "date": "2026-10-02", "type": "national", "wishes": "Happy Gandhi Jayanti! Honoring peace, truth, and nonviolence." },
+  { "name": "New Year", "date": "2026-01-01", "type": "catholic", "wishes": "Happy New Year! Wishing you joy and success." },
+  { "name": "Goa Carnival", "date": "2026-02-14", "type": "catholic", "note": "Runs ~Feb 14-17, ends before Ash Wednesday", "wishes": "Goa Carnival starts today! Enjoy the festivities." },
+  { "name": "Ash Wednesday", "date": "2026-02-18", "type": "catholic", "wishes": "Today is Ash Wednesday, a day of reflection." },
+  { "name": "Good Friday", "date": "2026-04-03", "type": "catholic", "wishes": "Today is Good Friday, a day of remembrance." },
+  { "name": "Easter Sunday", "date": "2026-04-05", "type": "catholic", "wishes": "May your Easter be bright, happy, and full of smiles." },
+  { "name": "Feast of St. Francis Xavier", "date": "2026-12-03", "type": "catholic", "wishes": "Happy Feast of St. Francis Xavier!" },
+  { "name": "Christmas", "date": "2026-12-25", "type": "catholic", "wishes": "Merry Christmas! Wishing you peace, joy, and love." },
+  { "name": "New Year's Eve", "date": "2026-12-31", "type": "catholic", "wishes": "Happy New Year's Eve! Here's to new beginnings." },
+  { "name": "Makar Sankranti", "date": "2026-01-14", "type": "hindu", "wishes": "Happy Makar Sankranti! Wishing you warmth and joy." },
+  { "name": "Shigmo (Shigmotsav)", "date": "2026-03-04", "type": "hindu", "note": "Main celebrations span ~Mar 2-17 across Goa towns", "wishes": "Shigmo celebrations start today! Enjoy the colors." },
+  { "name": "Gudi Padwa", "date": "2026-03-19", "type": "hindu", "wishes": "Happy Gudi Padwa! Wishing you a prosperous new year." },
+  { "name": "Ram Navami", "date": "2026-03-26", "type": "hindu", "wishes": "Happy Ram Navami! Wishing you peace and prosperity." },
+  { "name": "Ganesh Chaturthi (Chavath)", "date": "2026-09-14", "type": "hindu", "wishes": "Happy Ganesh Chaturthi! May Ganpati Bappa bless you." },
+  { "name": "Dussehra (Vijayadashami)", "date": "2026-10-20", "type": "hindu", "wishes": "Happy Dussehra! May good triumph over evil." },
+  { "name": "Diwali", "date": "2026-11-08", "type": "hindu", "wishes": "May your Diwali be filled with love, laughter, and light." }
+]
