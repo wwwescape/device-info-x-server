@@ -1,0 +1,122 @@
+name: device-info-x-server
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: deviceinfoxserver_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - backend_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      # First-time initdb (fresh volume) can take well over a minute on
+      # slower storage (e.g. a Raspberry Pi's SD card) — without this,
+      # failed checks count from container start and the default ~50s
+      # budget (interval * retries) runs out before Postgres is actually
+      # ready, so dependent services never start. Restarts against an
+      # already-initialized volume are unaffected — Postgres is ready in
+      # a couple seconds then, well inside this window.
+      start_period: 60s
+
+  api:
+    image: wwwescape/device-info-x-server:${API_IMAGE_TAG:-latest}
+    container_name: deviceinfoxserver_api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - media_data:/data/media
+      - ./secrets/firebase-service-account.json:/run/secrets/firebase-service-account.json:ro
+      - ./imports:/data/imports
+    networks:
+      - backend_net
+      - edge_net
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health/live"]
+      interval: 30s
+      timeout: 5s
+      start_period: 15s
+      retries: 3
+
+  nginx:
+    image: wwwescape/device-info-x-server-nginx:${API_IMAGE_TAG:-latest}
+    container_name: deviceinfoxserver_nginx
+    build:
+      context: .
+      dockerfile: nginx/Dockerfile
+    restart: unless-stopped
+    environment:
+      DOMAIN: ${DOMAIN}
+    volumes:
+      - media_data:/data/media:ro
+      - letsencrypt_certs:/etc/letsencrypt:ro
+      - letsencrypt_webroot:/var/www/certbot:ro
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - edge_net
+    depends_on:
+      - api
+
+  certbot:
+    image: certbot/certbot:latest
+    container_name: deviceinfoxserver_certbot
+    restart: unless-stopped
+    volumes:
+      - letsencrypt_certs:/etc/letsencrypt
+      - letsencrypt_webroot:/var/www/certbot
+    # First issuance is manual (see scripts/init_letsencrypt.sh) since a
+    # cert must already exist before Nginx can start with the HTTPS server
+    # block. From then on this loop renews twice a day, a no-op unless
+    # within Let's Encrypt's ~30-day renewal window.
+    entrypoint: >
+      sh -c 'trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot --quiet; sleep 12h & wait $${!}; done'
+
+  coturn:
+    image: wwwescape/device-info-x-server-coturn:${API_IMAGE_TAG:-latest}
+    container_name: deviceinfoxserver_coturn
+    build:
+      context: .
+      dockerfile: coturn/Dockerfile
+    restart: unless-stopped
+    command:
+      - -c
+      - /etc/coturn/turnserver.conf
+      - --realm=${DOMAIN}
+      - --server-name=${DOMAIN}
+      - --static-auth-secret=${TURN_STATIC_SECRET}
+      - --min-port=49160
+      - --max-port=49200
+      - --log-file=stdout
+    ports:
+      - "3478:3478"
+      - "3478:3478/udp"
+      - "49160-49200:49160-49200/udp"
+    networks:
+      - edge_net
+
+networks:
+  backend_net:
+  edge_net:
+
+volumes:
+  pgdata:
+  media_data:
+  letsencrypt_certs:
+  letsencrypt_webroot:

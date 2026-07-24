@@ -1,0 +1,36 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+docker-compose.override.yml
+
+# Test / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Editors / OS
+.idea/
+.vscode/
+.claude/
+*.swp
+.DS_Store
+
+# Data / secrets (never committed)
+data/
+media/
+imports/
+firebase-service-account.json
+*.pem
+*.key
+*.crt
+letsencrypt/
+
+# Alembic autogenerate scratch
+alembic/versions/__pycache__/

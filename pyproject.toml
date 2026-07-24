@@ -1,0 +1,72 @@
+[project]
+name = "device-info-x-server"
+version = "0.0.1"
+description = "Self-hosted backend for the Device Info X private messaging app"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi>=0.115,<1.0",
+    "uvicorn[standard]>=0.32,<1.0",
+    "sqlalchemy[asyncio]>=2.0.35,<3.0",
+    "asyncpg>=0.30,<1.0",
+    "alembic>=1.14,<2.0",
+    "pydantic>=2.9,<3.0",
+    "pydantic-settings>=2.6,<3.0",
+    "pyjwt>=2.9,<3.0",
+    "argon2-cffi>=23.1,<24.0",
+    "python-multipart>=0.0.12",
+    "firebase-admin>=6.5,<7.0",
+    "apscheduler>=3.10,<4.0",
+    "python-dateutil>=2.9,<3.0",
+    "pillow>=10.4,<11.0",
+    # Outbound fetches for link previews (app/services/link_preview_service.py) — was dev-only
+    # (TestClient) before that feature needed a real runtime HTTP client.
+    "httpx>=0.27,<1.0",
+    # python:3.13-slim ships no IANA timezone database at all (no apt tzdata, and zoneinfo has
+    # no system files to fall back to) — without this, ZoneInfo(...) in app/tasks/scheduler.py's
+    # birthday sweep fails for virtually every timezone a client sends, not just legacy aliases
+    # like "Asia/Calcutta". This is the pure-Python IANA data package zoneinfo falls back to when
+    # no system tzdata is found.
+    "tzdata>=2024.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3,<9.0",
+    "pytest-asyncio>=0.24,<1.0",
+    "pytest-cov>=5.0,<6.0",
+    "ruff>=0.7,<1.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+# All tests share one event loop, matching the single module-level
+# AsyncEngine in app/db/session.py — its pooled asyncpg connections are
+# bound to whichever loop created them, so a per-test loop (pytest-asyncio's
+# default) makes every test after the first fail with "attached to a
+# different loop" as soon as it touches the DB.
+asyncio_default_fixture_loop_scope = "session"
+asyncio_default_test_loop_scope = "session"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = [
+    # FastAPI's dependency injection intentionally relies on `Depends(...)`
+    # as a parameter default — not the mutable-default-argument bug B008
+    # exists to catch.
+    "B008",
+    # `class Foo(str, Enum)` is kept over `StrEnum` throughout app/models
+    # for familiarity; functionally equivalent, not worth the churn.
+    "UP042",
+]
