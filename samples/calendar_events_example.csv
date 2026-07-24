@@ -1,0 +1,6 @@
+id,type,title,description,start_at,end_at,all_day,location,recurrence_rule,recurrence_end_at,color,cancelled,cancellation_reason,reminder_minutes_before,created_by
+,birthday,Alice's Birthday,,2026-05-14T00:00:00Z,2026-05-15T00:00:00Z,true,,FREQ=YEARLY,,#FF5A8A,,,1440;60,
+,custom,Anniversary Dinner,Booked at the Italian place downtown,2026-06-20T19:00:00Z,2026-06-20T21:30:00Z,false,Trattoria Roma,,,#4A90D9,,,120,
+,vacation,Trip to the coast,,2026-07-10T00:00:00Z,2026-07-14T00:00:00Z,true,,,,#2EC4B6,,,,
+,planned_date,Rescheduled dinner,,2026-08-15T19:00:00Z,,false,,,,#4A90D9,true,Restaurant closed for renovations,,
+,planned_trip,Weekend in the mountains,,2026-09-18T00:00:00Z,2026-09-20T00:00:00Z,true,,,,#2EC4B6,true,Flights got cancelled,,
