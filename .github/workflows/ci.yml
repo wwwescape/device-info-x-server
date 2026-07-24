@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: device_info_x
+          POSTGRES_USER: device_info_x
+          POSTGRES_PASSWORD: device_info_x
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U device_info_x -d device_info_x"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: device_info_x
+      POSTGRES_USER: device_info_x
+      POSTGRES_PASSWORD: device_info_x
+      JWT_SECRET_KEY: ci-only-secret-not-for-production-use-aaaaaaaaaa
+      SERVER_SETUP_TOKEN: ci-setup-token
+      # Default /data/media isn't writable by the runner's unprivileged user;
+      # tests that exercise real uploads (POST /media) need somewhere they can mkdir.
+      MEDIA_ROOT: /tmp/media
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: pip install -e ".[dev]"
+
+      - name: Lint
+        run: ruff check .
+
+      - name: Run Alembic migrations (validates the migration path, separate from the test suite's create_all)
+        run: alembic upgrade head
+
+      - name: Run tests
+        run: pytest -v

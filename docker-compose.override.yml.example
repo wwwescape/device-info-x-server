@@ -1,0 +1,22 @@
+# Local development overrides.
+#
+# Copy to `docker-compose.override.yml` (git-ignored) to:
+#   - expose Postgres on the host for a local DB client
+#   - enable Swagger UI / ReDoc
+#   - bind-mount source for live reload
+#
+# Usage: docker compose up  (compose auto-merges docker-compose.override.yml)
+
+services:
+  db:
+    ports:
+      - "5432:5432"
+
+  api:
+    environment:
+      DEBUG: "true"
+      ENABLE_DOCS: "true"
+      MEDIA_SERVE_MODE: "direct"
+    volumes:
+      - ./app:/app/app:ro
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
